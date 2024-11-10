@@ -306,7 +306,7 @@ $board.on('mousedown touchstart',function(e){
             //canvas.sounds.draw.play(true)
         } 
     }
-    
+    e.preventDefault()
 })
 .on('mouseup mouseout touchend touchcancel',function(e){
     if (canvas.toolsSetting.isDrawing && !canvas.toolsSetting.isFill && !canvas.toolsSetting.isShape && !canvas.toolsSetting.isText){
@@ -329,6 +329,7 @@ $board.on('mousedown touchstart',function(e){
         if(canvas.toolsSetting.isSpray) 
             canvas.spray(x,y)
         else canvas.draw(x,y)
+        e.preventDefault()
     }
 })
 .on('click touchend', function(e) {
@@ -344,6 +345,7 @@ $board.on('mousedown touchstart',function(e){
             canvas.sounds.paint.play();
         },200)
     }
+    e.preventDefault()
 })
 $('#board,#overlay').on('wheel',function(e){
     e.preventDefault(); // Prevent default scroll behavior

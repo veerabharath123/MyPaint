@@ -1,0 +1,102 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script defer src="script.js"></script>
+    <script src="paint.js"></script>
+    <script src="sound.js"></script>
+</head>
+<body>
+    <div class="container">
+        <span class="floater open"><i class="fa-solid fa-expand"></i></span>
+        <div class="canvas-section">
+            <canvas id="board"></canvas>
+            <canvas id="overlay"></canvas>
+            <div class="text-overlay"></div>
+            
+        </div>
+        <div class="tools-section">
+            <div class="window-actions">
+                <span class="draggable"></span>
+                <span class="floater pin"><i class="fa-solid fa-thumbtack"></i></span>
+                <span class="floater close"><i class="fa-solid fa-window-maximize"></i></span>
+            </div>
+            <hr class="divider">
+            <div class="options-section">
+                <button class="btn clear" id="clear">Clear</button>
+                <button class="btn undo" id="undo">Undo</button>
+                <button class="btn download" id="download">download</button>
+                
+            </div>
+            <hr class="divider">
+            <div class="color-palette-section">
+                <div class="color-picker-section">
+                    <input type="color" name="" id="picker">
+                    <input type="text" name="" id="code" readonly>
+                </div>
+                <hr class="divider">
+                <div class="color-palette-selection">
+                    <ul></ul>
+                </div>
+            </div>
+            <hr class="divider">
+            <div class="brush-section">
+                <div class="brush-size">
+                    <input type="range" min="1" max="100" value="1" name="" id="brushSize">
+                    <input type="text" name="" id="brushSizeText" readonly>
+                </div>
+                <hr class="divider">
+                <div class="brush-styles-section">
+                    <div class="brush-styles">
+                        <span class="active" data-style="pen"><i class="fa-solid fa-pen"></i></span>
+                        <span data-style="paint"><i class="fa-solid fa-fill-drip"></i></span>
+                        <span data-style="eraser"><i class="fa-solid fa-eraser"></i></span>
+                        <span data-style="text">T</span>
+                        <span data-style="spray"><i class="fa-solid fa-spray-can"></i></span>
+                        <!-- <span data-style="highlight"><i class="fa-solid fa-highlighter"></i></span> -->
+                        <span data-style="shapes"><i class="fa-solid fa-shapes"></i></span>
+                    </div>
+                    <div class="shapes-section active">
+                        <hr class="divider">
+                        <div class="shapes">
+                        
+                            <span class="active" data-shape="circle"><i class="fa-regular fa-circle"></i></span>
+                            <span data-shape="rect"><i class="fa-regular fa-square"></i></span>
+                            <span data-shape="line"><i class="fa-solid fa-minus"></i></span>
+                            <span data-shape="ellipse"><i class="fa-solid fa-circle-notch"></i></span>
+                        </div>
+                    </div>
+                    <hr class="divider">
+                    <div class="brush-size-preview">
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-section" hidden>
+                <div class="text-box">
+                    <select name="" id="">
+                        
+                    </select>
+                    <input type="number" name="" id="" min="1" max="32">
+                    <button>B</button>
+                    <button>I</button>
+                    <button>U</button>
+                    <span>A</span>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <hr class="divider">
+                <div class="footer-items">
+                    <input type="range" name="" id="">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

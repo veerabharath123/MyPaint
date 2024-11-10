@@ -1,0 +1,296 @@
+* {
+    margin:0px;
+    padding:0px;
+    box-sizing: border-box;
+}
+body{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+.container{
+    height: 100vh;
+    width: 100vw;
+    background-color: #3C3C3C;
+    padding: .5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+
+    > .floater{
+        position:absolute;
+        right: .5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 2rem;
+        aspect-ratio: 1/1;
+        z-index: 3;
+        opacity: .5;
+        border-radius: 2rem;
+        background-color: #3C3C3C;
+        color: whitesmoke;
+
+        > i{
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    }
+    > .floater:hover{
+        opacity: 1;
+    }
+}
+.canvas-section{
+    width: 100%;
+    position: relative;
+    overflow-x: auto;
+
+    > canvas#overlay{
+        position:absolute;
+        left: 0;
+        z-index: -1;
+        top:0;
+    }
+    
+    > div.text-overlay{
+        position:absolute;
+        left: 0;
+        top:0;
+        z-index: -1;
+
+        > .text-shape{
+            position:absolute;
+            background-color: transparent;
+            border: 1px dashed black;
+            overflow: auto;
+            text-wrap: wrap;
+            margin: 0;
+            padding: 0
+        }
+        > .text-shape[contenteditable="true"] {
+            border: 1px dashed #000; /* Adjust the color and thickness as needed */
+            outline: none; /* Remove the default outline */
+        }
+        > .text-shape::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+        }
+    }
+}
+hr.divider{
+    margin-bottom: .5rem;
+    margin-top: .5rem;
+    border: none;
+    border-top: 1px solid #474747;
+}
+.tools-section{
+    padding: .5rem;
+    border: 1px solid #474747;
+    max-width: 300px;
+    background-color: #282828;
+    position: absolute;
+    z-index: 5;
+
+    > .window-actions{
+        width: 100%;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+
+        > .draggable{
+            flex-grow: 1;
+            display: block;
+            height: 2rem;
+            
+        }
+        > .draggable:hover{
+            background-color: lightgray;
+            cursor: move;
+        }
+        > .draggable:active{
+            
+        }
+
+        > .floater{
+            display: flex;
+            width: 2rem;
+            aspect-ratio: 1/1;
+            justify-content: center;
+            align-items: center;
+            color: whitesmoke;
+    
+            > i{
+                font-size: 1rem;
+                cursor: pointer;
+            }
+        }
+    }
+    
+}
+.color-palette-section .color-palette-selection{
+    display: flex;
+    gap: .5rem;
+
+    ul{
+        width: 100%;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        flex-wrap: wrap;
+
+        > li{
+            width: 2rem;
+            aspect-ratio: 1 / 1;
+            background: whitesmoke;
+            border-radius: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+
+            > span{
+                width: 28px;
+                display: block;
+                aspect-ratio: 1 / 1;
+                border-radius: 26px;
+                border: 1px solid black;
+            }
+        }
+    }
+}
+
+.options-section{
+    position: relative;
+    > .btn{
+        aspect-ratio: 4/2;
+        height: 2rem;
+        background-color: black;
+        color: whitesmoke;
+        outline:none;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: transform .3 ease-in-out;
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+    > .btn:active{
+        transform: scale(0.95);
+    }
+    > .btn.clear:hover{
+        background-color: red;
+    }
+    > .btn.undo:hover{
+        background-color: yellow;
+        color: black;
+    }
+    > .btn.download:hover{
+        background-color: green;
+    }
+    
+}
+
+.color-picker-section{
+    display: flex;
+
+    > input[type="text"]{
+        flex-grow: 1;
+        outline: none;
+        margin-left: .5rem;
+        border: 1px solid #757575;;
+        background-color: transparent;
+        border-radius: 5px;
+        text-align: center;
+        color: whitesmoke;
+    }
+    > input[type="color"]{
+        aspect-ratio: 1/1;
+        height: 30px;
+        border-radius: 5px;
+    }
+    
+}
+.brush-size{
+    display: flex;
+
+    > input[type="range"]{
+        flex-grow: 1;
+        
+    }
+    > input[type="text"]{
+        height: 30px;
+        aspect-ratio: 1/1;
+        outline: none;
+        margin-left: .5rem;
+        border: 1px solid #757575;;
+        background-color: transparent;
+        border-radius: 5px;
+        text-align: center;
+        color: whitesmoke;
+    }
+}
+
+.brush-styles{
+    display: flex;
+    
+    gap:.5rem;
+
+    > span{
+        width: 2rem;
+        aspect-ratio: 1/1;
+        border-radius: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color:whitesmoke;
+        cursor: pointer;
+
+        > i{
+        }
+    };
+    > span.active{
+        background-color: dodgerblue;
+    }
+}
+
+.shapes{
+    display: grid;
+    grid-template-columns: repeat(5,30px);
+    gap:.5rem;
+
+    > span{
+       
+        aspect-ratio: 1/1;
+        border-radius: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color:whitesmoke;
+        cursor: pointer;
+
+        > i{
+        }
+    };
+    > span.active{
+        background-color: dodgerblue;
+    }
+}
+.shapes-section{
+    height: 0px;
+    transition: height .3s ease-in-out;
+}
+.shapes-section.active{
+    height: fit-content;
+}
+.footer{
+    position: absolute;
+    bottom: .5rem;
+    width: calc(100% - 1rem);
+
+    > .footer-items{
+        min-height: 2rem;
+        width: 100%;
+    }
+}

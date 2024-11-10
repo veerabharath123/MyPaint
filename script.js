@@ -284,14 +284,15 @@ $(overlayCanvas).on('mousedown',function(e){
     
 })
 
-$board.on('mousedown',function(e){
+$board.on('mousedown touchstart',function(e){
+    const events = e.type === 'touchstart' ? e.touches[0] : e;
     if(!canvas.toolsSetting.isFill){
         canvas.toolsSetting.isDrawing = true;
 
         const rect = canvas.element.getBoundingClientRect()
 
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+        const x = events.clientX - rect.left
+        const y = events.clientY - rect.top
 
         canvas.context.beginPath();
         canvas.context.moveTo(x,y);
@@ -307,7 +308,7 @@ $board.on('mousedown',function(e){
     }
     
 })
-.on('mouseup mouseout',function(e){
+.on('mouseup mouseout touchend touchcancel',function(e){
     if (canvas.toolsSetting.isDrawing && !canvas.toolsSetting.isFill && !canvas.toolsSetting.isShape && !canvas.toolsSetting.isText){
         canvas.toolsSetting.isDrawing = false;
 
@@ -318,22 +319,24 @@ $board.on('mousedown',function(e){
     }
     
 })
-.on('mousemove',function(e){
+.on('mousemove touchmove',function(e){
+    const events = e.type === 'touchmove' ? e.touches[0] : e;
     if(canvas.toolsSetting.isDrawing && !canvas.toolsSetting.isFill){
         const rect = canvas.element.getBoundingClientRect()
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+        const x = events.clientX - rect.left
+        const y = events.clientY - rect.top
 
         if(canvas.toolsSetting.isSpray) 
             canvas.spray(x,y)
         else canvas.draw(x,y)
     }
 })
-.on('click', function(e) {
+.on('click touchend', function(e) {
+    const events = e.type === 'touchend' ? e.touches[0] : e;
     if (canvas.toolsSetting.isFill) {
         const rect = canvas.element.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = events.clientX - rect.left;
+        const y = events.clientY - rect.top;
         clearTimeout(fillTimer)
         fillTimer = setTimeout(() => {
             canvas.floodFill(x, y)

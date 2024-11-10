@@ -283,6 +283,16 @@ $(overlayCanvas).on('mousedown',function(e){
     }
     
 })
+function enterFullScreen() {
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+        document.documentElement.webkitRequestFullscreen();
+    }
+}
+
+enterFullScreen()
+
 
 $board.on('mousedown touchstart',function(e){
     const events = e.type === 'touchstart' ? e.touches[0] : e;

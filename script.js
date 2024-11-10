@@ -320,6 +320,7 @@ $board.on('mousedown touchstart',function(e){
     
 })
 .on('mousemove touchmove',function(e){
+    e.preventDefault()
     const events = e.type === 'touchmove' ? e.touches[0] : e;
     if(canvas.toolsSetting.isDrawing && !canvas.toolsSetting.isFill){
         const rect = canvas.element.getBoundingClientRect()
@@ -329,7 +330,7 @@ $board.on('mousedown touchstart',function(e){
         if(canvas.toolsSetting.isSpray) 
             canvas.spray(x,y)
         else canvas.draw(x,y)
-        e.preventDefault()
+        
     }
 })
 .on('click touchend', function(e) {

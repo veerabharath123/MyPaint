@@ -223,7 +223,6 @@ $('.floater:is(.open,.close)').click(function(){
         $('.tools-section').hide();
     }
 })
-let evt = new Event('resize')
 $('.floater.pin').click(function(){
     const floater = $(this)
     if(floater.find('i').hasClass('fa-thumbtack')){
@@ -231,48 +230,48 @@ $('.floater.pin').click(function(){
         $('.tools-section').css({position: 'relative'})
         $('.container').css({ 'grid-template-columns' : '1fr 300px'})
         floater.find('i').removeClass('fa-thumbtack fa-thumbtack-slash').addClass('fa-thumbtack-slash')
-        //$canvasSection.css('width', `calc(${$canvasSection.css('width')} - 300px)`)
     }
     else{
         $('.floater.close').show()
         $('.tools-section').css({position: 'absolute'})
         floater.find('i').removeClass('fa-thumbtack fa-thumbtack-slash').addClass('fa-thumbtack')
         $('.container').css({ 'grid-template-columns' : '1fr'})
-        //$canvasSection.css('width', `calc(${$canvasSection.css('width')} + 300px)`)
-        //canvas.resize(width, height);
     }
-    //window.dispatchEvent(evt)
 })
 
-$(overlayCanvas).on('mousedown',function(e){
+$(overlayCanvas).on('mousedown touchstart',function(e){
+    const events = e.type === 'touchstart' ? e.touches[0] : e;
     if(canvas.toolsSetting.isShape){
         canvas.toolsSetting.isDrawing = true;
 
         const rect = overlayCanvas.getBoundingClientRect()
 
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+        const x = events.clientX - rect.left
+        const y = events.clientY - rect.top
 
         startX = x
         startY = y
     }
 })
-.on('mousemove',function(e){
+.on('mousemove touchmove',function(e){
+    const events = e.type === 'touchmove' ? e.touches[0] : e;
     if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isShape){
         const rect = overlayCanvas.getBoundingClientRect()
 
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+        const x = events.clientX - rect.left
+        const y = events.clientY - rect.top
         overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
         canvas.drawShapes(overlayContext, $('.shapes span.active').data('shape'), {x : startX, y : startY}, {x : x, y : y})
     }
 })
-.on('mouseup mouseout',function(e){
+.on('mouseup mouseout touchend touchcancel',function(e){
+    const events = ['touchend','touchcancel'].includes(e.type) ? e.changedTouches[0] : e;
     if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isShape) {
         const rect = overlayCanvas.getBoundingClientRect()
 
-        const x = e.clientX - rect.left
-        const y = e.clientY - rect.top
+        const x = events.clientX - rect.left
+        const y = events.clientY - rect.top
+
         canvas.toolsSetting.isDrawing = false;
         overlayContext.closePath();
 
@@ -408,7 +407,8 @@ let textY = 0;
 let textShape; 
 let editable = false;
 
-$textOverlay.on('mousedown',function(e){
+$textOverlay.on('mousedown touchstart',function(e){
+    const events = e.type === 'touchstart' ? e.touches[0] : e;
     if(!canvas.toolsSetting.isText || textShape && e.target == textShape[0]) return
         if(editable){
             editable = false;
@@ -416,8 +416,8 @@ $textOverlay.on('mousedown',function(e){
             return
         }
         const rect = this.getBoundingClientRect()
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = events.clientX - rect.left;
+        const y = events.clientY - rect.top;
 
         textX = x;
         textY = y;
@@ -427,16 +427,18 @@ $textOverlay.on('mousedown',function(e){
         textShape.css({ 'left' : x , 'top' : y}).attr('contenteditable',true)
         canvas.toolsSetting.isDrawing = true
 })
-.on('mousemove',function(e){
+.on('mousemove touchmove',function(e){
+    const events = e.type === 'touchmove' ? e.touches[0] : e;
     if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isText){
         const rect = this.getBoundingClientRect()
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = events.clientX - rect.left;
+        const y = events.clientY - rect.top;
 
         textShape.css({ 'width' : x - textX , 'height' : y - textY})
     }
 })
-.on('mouseup',function(e){
+.on('mouseup touchend',function(e){
+    const events = e.type === 'touchend' ? e.changedTouches[0] : e;
     if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isText){
         canvas.toolsSetting.isDrawing = false
         textShape.focus()
@@ -477,36 +479,39 @@ let mx = 0;
 let my = 0;
 const $tools = $('.tools-section')
 
-$('.draggable').on('mousedown',function(e){
+$('.draggable').on('mousedown touchstart',function(e){
+    const events = e.type === 'touchstart' ? e.touches[0] : e
     moving = true;
     const r = $tools[0].getBoundingClientRect()
-    const x1 = e.clientX - r.left;
-    const y2 = e.clientY - r.top;
+    const x1 = events.clientX - r.left;
+    const y2 = events.clientY - r.top;
     mx = x1;
     my = y2 
 })
-$('.container').on('mousemove',function(e){
+$('.container').on('mousemove touchmove',function(e){
+    const events = e.type === 'touchmove' ? e.touches[0] : e
     if(moving){
         const rect = this.getBoundingClientRect()
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const x = events.clientX - rect.left;
+        const y = events.clientY - rect.top;
 
         $tools.css({ left : x - mx , top : y - my})
     }
 })
-$('.container').on('mouseup',function(){
+$('.container').on('mouseup touchend',function(){
     moving = false;
 })
-$('.floater.open').on('mousedown',function(e){
-    
+$('.floater.open').on('mousedown touchstart',function(e){
+    const events = e.type === 'touchstart' ? e.touches[0] : e
     const r = this.getBoundingClientRect()
-    const y2 = e.clientY - r.top;
+    const y2 = events.clientY - r.top;
     my = y2 
     setTimeout(() => {
         movingF = true;
     },200)
 })
-$('.container').on('mousemove',function(e){
+$('.container').on('mousemove touchmove',function(e){
+    const events = e.type === 'touchmove' ? e.touches[0] : e
     if(movingF){
         const rect = this.getBoundingClientRect()
         const y = e.clientY - rect.top;
@@ -514,7 +519,7 @@ $('.container').on('mousemove',function(e){
         $('.floater.open').css({ top : y - my})
     }
 })
-$('.container').on('mouseup',function(){
+$('.container').on('mouseup touchend',function(){
     setTimeout(() => {
         movingF = false;
     },500)

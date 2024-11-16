@@ -583,12 +583,12 @@ function drawShapes(currentShapeType){
     save()
 }
 
-$shapeOverlay.on('mousedown',function(e){
-
+$shapeOverlay.on('mousedown touchstart',function(e){
+    const events = e.type == 'touchstart' ? e.touches[0] : e
     if(!drawingBox.hasClass('moving')){
         const rect = this.getBoundingClientRect()
-        shapeX = e.clientX - rect.left;
-        shapeY = e.clientY - rect.top;
+        shapeX = events.clientX - rect.left;
+        shapeY = events.clientY - rect.top;
         resetShapes()
         drawingBox.css({ left : shapeX, top : shapeY });
     } else{
@@ -601,11 +601,12 @@ $shapeOverlay.on('mousedown',function(e){
     }
     shapeMoving = true
 })
-.on('mousemove',function(e){
+.on('mousemove touchmove',function(e){
+    const events = e.type == 'touchmove' ? e.touches[0] : e
     if(shapeMoving){
         const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top; 
+        const x = events.clientX - rect.left;
+        const y = events.clientY - rect.top; 
         const isMoving = drawingBox.hasClass('moving')
 
         if(isMoving && $shapeOverlay.has(e.target).length > 0)
@@ -616,7 +617,7 @@ $shapeOverlay.on('mousedown',function(e){
     }
     
 })
-.on('mouseup',function(e){
+.on('mouseup touchend touchcancel',function(){
     shapeMoving = false;
 
     const currentShapeType = $('.shapes span.active').data('shape')

@@ -224,7 +224,7 @@ hr.divider{
     }
     > input[type="text"]{
         height: 30px;
-        aspect-ratio: 1/1;
+        width:30px;
         outline: none;
         margin-left: .5rem;
         border: 1px solid #757575;;

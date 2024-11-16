@@ -586,6 +586,7 @@ function drawShapes(currentShapeType){
 }
 
 $shapeOverlay.on('mousedown touchstart',function(e){
+    e.preventDefault()
     const events = e.type == 'touchstart' ? e.touches[0] : e
     if(!drawingBox.hasClass('moving')){
         const rect = this.getBoundingClientRect()
@@ -604,6 +605,7 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     shapeMoving = true
 })
 .on('mousemove touchmove',function(e){
+    e.preventDefault()
     const events = e.type == 'touchmove' ? e.touches[0] : e
     if(shapeMoving){
         const rect = this.getBoundingClientRect();
@@ -620,6 +622,7 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     
 })
 .on('mouseup touchend touchcancel',function(e){
+    e.preventDefault()
     shapeMoving = false;
 
     const currentShapeType = $('.shapes span.active').data('shape')

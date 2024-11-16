@@ -533,7 +533,7 @@ function resizeShapes(x,y){
     shapePositions.start = { x : startX , y : startY }
     shapePositions.end = { x : startX + positions.width , y : startY + positions.height }
     shape1.css('stroke',canvas.toolsSetting.brushColor);
-    shape2.css({'stroke':canvas.toolsSetting.brushColor , 'stroke-width':canvas.toolsSetting.brushSize});
+    shape2.css({'stroke':`${canvas.toolsSetting.brushColor} !important` , 'stroke-width':canvas.toolsSetting.brushSize});
 
     switch(currentShapeType){
         case 'rect':
@@ -597,8 +597,8 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     } else{
 
         const rect1 = drawingBox[0].getBoundingClientRect();
-        shapeMoveX = e.clientX - rect1.left;
-        shapeMoveY = e.clientY - rect1.top;
+        shapeMoveX = events.clientX - rect1.left;
+        shapeMoveY = events.clientY - rect1.top;
         rect12 = { x : parseInt(drawingBox.css('left'), 10), y : parseInt(drawingBox.css('top'), 10)}
         console.log('h',rect12)
     }

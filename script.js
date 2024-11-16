@@ -532,15 +532,17 @@ function resizeShapes(x,y){
 
     shapePositions.start = { x : startX , y : startY }
     shapePositions.end = { x : startX + positions.width , y : startY + positions.height }
+    shape1.css('stroke',canvas.toolsSetting.brushColor);
+    shape2.css({'stroke':canvas.toolsSetting.brushColor , 'stroke-width':canvas.toolsSetting.brushSize});
 
     switch(currentShapeType){
         case 'rect':
-            shape1.attr('points',`1,1 ${positions.width - 1},1 ${positions.width - 1},${positions.height - 1} 1,${positions.height - 1}`);
+            shape1.attr('points',`1,1 ${positions.width - 1},1 ${positions.width - 1},${positions.height - 1} 1,${positions.height - 1}`)
             break;
         case 'ellipse':
             const rx = Math.max(positions.width / 2 - 1,0);
             const ry = Math.max(positions.height / 2 - 1,0);
-            shape2.attr({cx : rx + 1, cy: ry + 1, rx : rx, ry : ry});
+            shape2.attr({cx : rx + 1, cy: ry + 1, rx : rx, ry : ry})
             break;
         case 'triangle':
             shape1.attr('points',`1, ${positions.height - 1} ${positions.width - 1}, ${positions.height - 1} ${(positions.width/2) + 1}, 1`)

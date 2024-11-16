@@ -12,6 +12,7 @@ const $shapes = $('.shapes span');
 const $shapesSection = $('.shapes-section').hide()
 const $textOverlay = $('.text-overlay')
 const $colors = $('.color-palette-selection ul')
+const $shapeOverlay = $('.shape-overlay')
 let wheelTimer;
 let fillTimer;
 const tempCanvas = document.createElement('canvas');
@@ -28,6 +29,7 @@ const canvas = new Paint($board.attr('id')).loadCanvas(width ,height);
 overlayCanvas.width = width
 overlayCanvas.height = height
 $textOverlay.css({ 'width': width, 'height' : height})
+$shapeOverlay.css({ 'width': width, 'height' : height})
 const primaryColors = [
     "#FF0000", // Red
     "#FFA500", // Orange
@@ -171,7 +173,7 @@ $brushes.on('click',function(){
         canvas.toolsSetting.isShape = false;
         canvas.toolsSetting.isSpray = false;
         canvas.toolsSetting.isText = false;
-        overlayCanvas.style.zIndex = -1;
+        $shapeOverlay.css('z-index',-1)
         $textOverlay[0].style.zIndex = -1;
         $shapesSection.hide()
         loadTempCanvas()
@@ -192,7 +194,7 @@ $brushes.on('click',function(){
                 break;
             case 'shapes':
                 canvas.toolsSetting.isShape = true;
-                overlayCanvas.style.zIndex = 1;
+                $shapeOverlay[0].style.zIndex = 1;
                 $shapesSection.show()
             default:
                 const style = $currentBrush.data('style') == 'highlight'
@@ -283,15 +285,6 @@ $(overlayCanvas).on('mousedown',function(e){
     }
     
 })
-function enterFullScreen() {
-    if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-    } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
-        document.documentElement.webkitRequestFullscreen();
-    }
-}
-
-enterFullScreen()
 
 
 $board.on('mousedown touchstart',function(e){
@@ -523,4 +516,155 @@ $(document).on('keydown',function(e){
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         $undoBtn.click()
     }
+})
+
+const drawingBox = $shapeOverlay.find('svg');
+const shape1 = drawingBox.find('polygon')
+const shape2 = drawingBox.find('ellipse')
+let shapeMoving = false;
+let shapeX = 0;
+let shapeY = 0;
+let shapeMoveX = 0;
+let shapeMoveY = 0;
+let shapePositions = {
+    start : { x : 0, y : 0 },
+    end : { x : 0, y : 0 }
+}
+
+function resetShapes(){
+    drawingBox.css({ left : 0, top : 0, width : 0, height : 0 });
+    shape1.attr('points','')
+    shape2.attr({cx : 0, cy: 0, rx : 0, ry : 0})
+}
+
+function moveShape(x,y){
+    shapeX = x - shapeMoveX
+    shapeY = y - shapeMoveY
+    console.log(shapeX,shapeY)
+    console.log(shapePositions)
+    
+    drawingBox.css({ left: shapeX, top : shapeY}) 
+
+    const movedX = shapePositions.start.x - shapeX
+    const movedY = shapePositions.start.y - shapeY
+    
+    shapePositions.start = {
+        x: shapeX,
+        y: shapeY
+    };
+
+    const width = parseInt(drawingBox.css('width'), 10)
+    const height = parseInt(drawingBox.css('height'), 10)
+
+    shapePositions.end = {
+        x: Math.abs(shapePositions.end.x - movedX),
+        y: Math.abs(shapePositions.end.y - movedY)
+    };
+    console.log(shapePositions)
+    return
+}
+
+function resizeShapes(x,y){
+    const currentShapeType = $('.shapes span.active').data('shape')
+
+    const positions = { 
+        width : Math.abs(x - shapeX), 
+        height: Math.abs(y - shapeY), 
+        left : Math.min(shapeX, x), 
+        top : Math.min(shapeY, y)
+    }
+    
+    drawingBox.css(positions)
+
+    shapePositions.start = { x : startX , y : startY }
+    shapePositions.end = { x : startX + positions.width , y : startY + positions.height }
+
+    switch(currentShapeType){
+        case 'rect':
+            shape1.attr('points',`1,1 ${positions.width - 1},1 ${positions.width - 1},${positions.height - 1} 1,${positions.height - 1}`);
+            
+            break;
+        case 'ellipse':
+            const rx = Math.max(positions.width / 2 - 1,0);
+            const ry = Math.max(positions.height / 2 - 1,0);
+            shape2.attr({cx : rx + 1, cy: ry + 1, rx : rx, ry : ry});
+            break;
+        case 'triangle':
+            shape1.attr('points',`1, ${positions.height - 1} ${positions.width - 1}, ${positions.height - 1} ${(positions.width/2) + 1}, 1`)
+            break;
+        case 'line':
+            const p = {
+                x1: shapeX > x ? positions.width - 1 : 1,
+                y1: shapeY > y ? positions.height - 1 : 1,
+                x2: shapeX < x ? positions.width - 1 : 1,
+                y2: shapeY < y ? positions.height - 1 : 1
+            };
+            shape1.attr('points',`${p.x1},${p.y1} ${p.x2},${p.y2}`)
+            shapePositions.start = {
+                x: shapeX,
+                y: shapeY
+            };
+        
+            shapePositions.end = {
+                x: x,
+                y: y
+            };
+    }
+}
+
+$shapeOverlay.on('mousedown',function(e){
+
+    if(!drawingBox.hasClass('moving')){
+        const rect = this.getBoundingClientRect()
+        shapeX = e.clientX - rect.left;
+        shapeY = e.clientY - rect.top;
+        resetShapes()
+        drawingBox.css({ left : shapeX, top : shapeY });
+    } else{
+
+        const rect1 = drawingBox[0].getBoundingClientRect();
+        shapeMoveX = e.clientX - rect1.left;
+        shapeMoveY = e.clientY - rect1.top;
+    }
+    shapeMoving = true
+})
+.on('mousemove',function(e){
+    if(shapeMoving){
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top; 
+
+        if(drawingBox.hasClass('moving') && $shapeOverlay.has(e.target).length > 0)
+            moveShape(x,y)
+        
+        if(!drawingBox.hasClass('moving'))
+            resizeShapes(x,y)
+    }
+    
+})
+.on('mouseup',function(e){
+    shapeMoving = false;
+
+    const currentShapeType = $('.shapes span.active').data('shape')
+
+
+    const startPoints = { 
+        x : parseInt(drawingBox.css('left'), 10), 
+        y : parseInt(drawingBox.css('top'), 10) 
+    }
+    const endPoints = { 
+        x : startPoints.x + parseInt(drawingBox.css('width'), 10), 
+        y : startPoints.y + parseInt(drawingBox.css('height'), 10)
+    }
+
+    if(drawingBox.hasClass('moving') && $shapeOverlay.has(e.target).length > 0) return
+
+    drawingBox.toggleClass('moving')
+    if(drawingBox.hasClass('moving')) return;
+
+    if(currentShapeType == 'line'){
+        canvas.drawShapes(canvas.context,currentShapeType,shapePositions.start, shapePositions.end)
+    }
+    else canvas.drawShapes(canvas.context,currentShapeType,startPoints, endPoints)
+    resetShapes()
 })

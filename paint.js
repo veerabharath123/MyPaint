@@ -179,6 +179,13 @@ class Paint{
                 break;
             case 'rect':
                 sheet.rect(start.x, start.y, end.x - start.x, end.y - start.y);
+                break;
+            case 'triangle':
+                sheet.beginPath()
+                sheet.moveTo(start.x + 1,end.y - 1);
+                sheet.lineTo(end.x,end.y - 1);
+                sheet.lineTo(start.x + ((end.x - start.x) /2) + 1,start.y);
+                sheet.closePath();  
         }
     
         sheet.stroke();
@@ -186,7 +193,7 @@ class Paint{
 
     drawCircle(sheet, circleType,start, end){
         const centerX = (start.x + end.x) / 2;
-        const centerY = (start.y + end.y) / 2;
+        const centerY = (start.y + end.y) / 2; 
     
         if(circleType === 'circle'){
             const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)) / 2;
@@ -196,7 +203,7 @@ class Paint{
             const radiusX = Math.abs(end.x - start.x) / 2;
             const radiusY = Math.abs(end.y - start.y) / 2;
         
-            sheet.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+            sheet.ellipse(centerX, centerY, radiusX - 1, radiusY - 1, 0, 0, 2 * Math.PI);
         }
        
     }

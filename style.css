@@ -297,3 +297,32 @@ hr.divider{
         width: 100%;
     }
 }
+
+.shape-overlay{
+    position: absolute;
+    z-index: -4;
+    top: 0;
+    overflow: hidden;
+    
+
+    > svg {
+        position: absolute;
+        width: 0;
+        height: 0;
+        left: 0;
+        top: 0;
+        
+
+        > polygon, ellipse{
+            fill:transparent;
+            stroke-width: 1;
+            stroke: black;
+        }
+    }
+    > svg.moving{
+        cursor: move;
+        outline:1px dashed rgb(0, 0, 0);
+        box-shadow: 0 0 0 5px transparent, /* Transparent padding */
+                0 0 0 1px white
+    }
+}

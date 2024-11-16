@@ -17,7 +17,12 @@
             <canvas id="board"></canvas>
             <canvas id="overlay"></canvas>
             <div class="text-overlay"></div>
-            
+            <div class="shape-overlay">
+                <svg>
+                    <polygon class="triangle line rect"></polygon>
+                    <ellipse class="ellipse"></ellipse>
+                </svg>
+            </div>
         </div>
         <div class="tools-section">
             <div class="window-actions">
@@ -64,10 +69,10 @@
                         <hr class="divider">
                         <div class="shapes">
                         
-                            <span class="active" data-shape="circle"><i class="fa-regular fa-circle"></i></span>
+                            <span class="active" data-shape="ellipse"><i class="fa-regular fa-circle"></i></span>
                             <span data-shape="rect"><i class="fa-regular fa-square"></i></span>
                             <span data-shape="line"><i class="fa-solid fa-minus"></i></span>
-                            <span data-shape="ellipse"><i class="fa-solid fa-circle-notch"></i></span>
+                            <span data-shape="triangle"><i class="fa-solid fa-caret-up"></i></span>
                         </div>
                     </div>
                     <hr class="divider">

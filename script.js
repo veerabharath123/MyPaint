@@ -301,7 +301,7 @@ $board.on('mousedown touchstart',function(e){
     }
 })
 .on('click touchend', function(e) {
-    const events = e.type === 'touchend' ? e.touches[0] : e;
+    const events = e.type === 'touchend' ? e.changedTouches[0] : e;
     if (canvas.toolsSetting.isFill) {
         const rect = canvas.element.getBoundingClientRect();
         const x = events.clientX - rect.left;

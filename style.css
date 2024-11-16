@@ -326,3 +326,9 @@ hr.divider{
                 0 0 0 1px white
     }
 }
+.text-light{
+    color: whitesmoke !important;
+}
+.mt{
+    margin-top: .5rem;
+}

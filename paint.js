@@ -161,10 +161,16 @@ class Paint{
         link.click();
     }
 
-    drawShapes(sheet, shape, start, end){
+    drawShapes(sheet, shape, start, end, fill){
         sheet.beginPath();
-        sheet.lineWidth = this.toolsSetting.brushSize
-        sheet.strokeStyle = this.toolsSetting.brushColor
+        if(!fill){
+            sheet.lineWidth = this.toolsSetting.brushSize
+            sheet.strokeStyle = this.toolsSetting.brushColor
+        }
+        else{
+            sheet.fillStyle = this.toolsSetting.brushColor
+        }
+        
     
         switch(shape){
             case 'circle':
@@ -188,7 +194,7 @@ class Paint{
                 sheet.closePath();  
         }
     
-        sheet.stroke();
+        fill ? sheet.fill() : sheet.stroke();
     }
 
     drawCircle(sheet, circleType,start, end){

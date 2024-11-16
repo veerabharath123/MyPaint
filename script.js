@@ -1,4 +1,5 @@
 const $canvasSection = $('.canvas-section');
+const $container = $('.container');
 const $board = $('#board')
 const $clearBtn = $('#clear')
 const $undoBtn = $('#undo').hide()
@@ -13,12 +14,17 @@ const $shapesSection = $('.shapes-section').hide()
 const $textOverlay = $('.text-overlay')
 const $colors = $('.color-palette-selection ul')
 const $shapeOverlay = $('.shape-overlay')
+const $fillShapes = $('#fill-shapes')
+const $floaterOpen = $('.floater.open').hide()
+const $floaterClose = $('.floater.close')
+const $floaterPin = $('.floater.pin')
+const $floater = $('.floater:is(.open,.close)')
+const $tools = $('.tools-section')
 let wheelTimer;
 let fillTimer;
 const tempCanvas = document.createElement('canvas');
 const tempContext = tempCanvas.getContext('2d');
-const overlayCanvas = document.getElementById('overlay');
-const overlayContext = overlayCanvas.getContext('2d');
+
 const imgSrc = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 576 512"><path d="M41.4 9.4C53.9-3.1 74.1-3.1 86.6 9.4L168 90.7l53.1-53.1c28.1-28.1 73.7-28.1 101.8 0L474.3 189.1c28.1 28.1 28.1 73.7 0 101.8L283.9 481.4c-37.5 37.5-98.3 37.5-135.8 0L30.6 363.9c-37.5-37.5-37.5-98.3 0-135.8L122.7 136 41.4 54.6c-12.5-12.5-12.5-32.8 0-45.2zM217.4 230.7L168 181.3 75.9 273.4c-4.2 4.2-7 9.3-8.4 14.6h319.2l42.3-42.3c3.1-3.1 3.1-8.2 0-11.3L277.7 82.9c-3.1-3.1-8.2-3.1-11.3 0L213.3 136l49.4 49.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0zM512 512c-35.3 0-64-28.7-64-64 0-25.2 32.6-79.6 51.2-108.7 6-9.4 19.5-9.4 25.5 0C543.4 368.4 576 422.8 576 448c0 35.3-28.7 64-64 64z"/></svg>`)}`;
 let startX = 0;
 let startY = 0;
@@ -26,8 +32,7 @@ let startY = 0;
 let width = parseInt($canvasSection.css('width'), 10);
 let height = parseInt($canvasSection.css('height'), 10);
 const canvas = new Paint($board.attr('id')).loadCanvas(width ,height);
-overlayCanvas.width = width
-overlayCanvas.height = height
+
 $textOverlay.css({ 'width': width, 'height' : height})
 $shapeOverlay.css({ 'width': width, 'height' : height})
 const primaryColors = [
@@ -82,7 +87,10 @@ function getOutlinedSvg(color, outlineColor = "#FFFFFF", outlineWidth = 2) {
     // Create a data URL for the image
     return `data:image/svg+xml;base64,${base64Svg}`;
 }
-
+function save(){
+    canvas.save()
+    loadOptionBtns()
+}
 function loadOptionBtns(){
     $undoBtn.show()
     $downloadBtn.show();
@@ -207,84 +215,41 @@ $brushes.on('click',function(){
 window.addEventListener('resize1', function() {
     width = parseInt($canvasSection.css('width'), 10);
     height = parseInt($canvasSection.css('height'), 10);
-    overlayCanvas.width = width;
-    overlayCanvas.height = height
+
     canvas.resize(width, height);
 });
 
-$('.floater:is(.open,.close)').click(function(){
+$floater.on('floater:click',function(){
     const floater = $(this)
     if(floater.hasClass('open')){
         floater.hide();
-        $('.floater.close').show()
-        $('.tools-section').show();
+        $floaterClose.show()
+        $tools.show();
     }
     else{
         floater.hide();
-        $('.floater.open').show()
-        $('.tools-section').hide();
+        $floaterOpen.show()
+        $tools.hide();
     }
 })
-$('.floater.pin').click(function(){
+$floaterClose.click(function(){
+    $floaterClose.trigger('floater:click')
+})
+$floaterPin.click(function(){
     const floater = $(this)
-    if(floater.find('i').hasClass('fa-thumbtack')){
-        $('.floater:is(.open,.close)').hide()
-        $('.tools-section').css({position: 'relative'})
-        $('.container').css({ 'grid-template-columns' : '1fr 300px'})
+    if($floaterPin.find('i').hasClass('fa-thumbtack')){
+        $floater.hide()
+        $tools.css({position: 'relative' , top : 0, left : 0})
+        $container.css({ 'grid-template-columns' : '1fr 300px'})
         floater.find('i').removeClass('fa-thumbtack fa-thumbtack-slash').addClass('fa-thumbtack-slash')
     }
     else{
-        $('.floater.close').show()
-        $('.tools-section').css({position: 'absolute'})
-        floater.find('i').removeClass('fa-thumbtack fa-thumbtack-slash').addClass('fa-thumbtack')
-        $('.container').css({ 'grid-template-columns' : '1fr'})
+        $floaterClose.show()
+        $tools.css({position: 'absolute'})
+        $floaterPin.find('i').removeClass('fa-thumbtack fa-thumbtack-slash').addClass('fa-thumbtack')
+        $container.css({ 'grid-template-columns' : '1fr'})
     }
 })
-
-$(overlayCanvas).on('mousedown touchstart',function(e){
-    const events = e.type === 'touchstart' ? e.touches[0] : e;
-    if(canvas.toolsSetting.isShape){
-        canvas.toolsSetting.isDrawing = true;
-
-        const rect = overlayCanvas.getBoundingClientRect()
-
-        const x = events.clientX - rect.left
-        const y = events.clientY - rect.top
-
-        startX = x
-        startY = y
-    }
-})
-.on('mousemove touchmove',function(e){
-    const events = e.type === 'touchmove' ? e.touches[0] : e;
-    if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isShape){
-        const rect = overlayCanvas.getBoundingClientRect()
-
-        const x = events.clientX - rect.left
-        const y = events.clientY - rect.top
-        overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-        canvas.drawShapes(overlayContext, $('.shapes span.active').data('shape'), {x : startX, y : startY}, {x : x, y : y})
-    }
-})
-.on('mouseup mouseout touchend touchcancel',function(e){
-    const events = ['touchend','touchcancel'].includes(e.type) ? e.changedTouches[0] : e;
-    if(canvas.toolsSetting.isDrawing && canvas.toolsSetting.isShape) {
-        const rect = overlayCanvas.getBoundingClientRect()
-
-        const x = events.clientX - rect.left
-        const y = events.clientY - rect.top
-
-        canvas.toolsSetting.isDrawing = false;
-        overlayContext.closePath();
-
-        canvas.drawShapes(canvas.context, $('.shapes span.active').data('shape'), {x : startX, y : startY}, {x : x, y : y})
-        overlayContext.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-        canvas.save()
-        loadOptionBtns()
-    }
-    
-})
-
 
 $board.on('mousedown touchstart',function(e){
     const events = e.type === 'touchstart' ? e.touches[0] : e;
@@ -470,7 +435,7 @@ let moving = false;
 let movingF = false
 let mx = 0;
 let my = 0;
-const $tools = $('.tools-section')
+
 
 $('.draggable').on('mousedown touchstart',function(e){
     const events = e.type === 'touchstart' ? e.touches[0] : e
@@ -481,8 +446,14 @@ $('.draggable').on('mousedown touchstart',function(e){
     mx = x1;
     my = y2 
 })
-$('.container').on('mousemove touchmove',function(e){
+$container.on('mousemove touchmove',function(e){
     const events = e.type === 'touchmove' ? e.touches[0] : e
+    if(movingF){
+        const rect = this.getBoundingClientRect()
+        const y = events.clientY - rect.top;
+
+        $floaterOpen.css({ top : y - my})
+    }
     if(moving){
         const rect = this.getBoundingClientRect()
         const x = events.clientX - rect.left;
@@ -491,32 +462,27 @@ $('.container').on('mousemove touchmove',function(e){
         $tools.css({ left : x - mx , top : y - my})
     }
 })
-$('.container').on('mouseup touchend',function(){
+.on('mouseup touchend',function(){
+    movingF = false;
     moving = false;
 })
-$('.floater.open').on('mousedown touchstart',function(e){
+
+let timeoutFloater;
+$floaterOpen.on('mousedown touchstart',function(e){
     const events = e.type === 'touchstart' ? e.touches[0] : e
     const r = this.getBoundingClientRect()
     const y2 = events.clientY - r.top;
     my = y2 
-    setTimeout(() => {
-        movingF = true;
-    },200)
-})
-$('.container').on('mousemove touchmove',function(e){
-    const events = e.type === 'touchmove' ? e.touches[0] : e
-    if(movingF){
-        const rect = this.getBoundingClientRect()
-        const y = e.clientY - rect.top;
+    movingF = true;
 
-        $('.floater.open').css({ top : y - my})
-    }
-})
-$('.container').on('mouseup touchend',function(){
-    setTimeout(() => {
-        movingF = false;
+    clearTimeout(timeoutFloater)
+    timeoutFloater = setTimeout(() => {
+        if(!movingF){
+            $floaterOpen.trigger('floater:click')
+        }
     },500)
 })
+
 $(document).on('keydown',function(e){
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
         $undoBtn.click()
@@ -535,6 +501,7 @@ let shapePositions = {
     start : { x : 0, y : 0 },
     end : { x : 0, y : 0 }
 }
+let rect12 = {}
 
 function resetShapes(){
     drawingBox.css({ left : 0, top : 0, width : 0, height : 0 });
@@ -545,27 +512,9 @@ function resetShapes(){
 function moveShape(x,y){
     shapeX = x - shapeMoveX
     shapeY = y - shapeMoveY
-    console.log(shapeX,shapeY)
-    console.log(shapePositions)
     
     drawingBox.css({ left: shapeX, top : shapeY}) 
 
-    const movedX = shapePositions.start.x - shapeX
-    const movedY = shapePositions.start.y - shapeY
-    
-    shapePositions.start = {
-        x: shapeX,
-        y: shapeY
-    };
-
-    const width = parseInt(drawingBox.css('width'), 10)
-    const height = parseInt(drawingBox.css('height'), 10)
-
-    shapePositions.end = {
-        x: Math.abs(shapePositions.end.x - movedX),
-        y: Math.abs(shapePositions.end.y - movedY)
-    };
-    console.log(shapePositions)
     return
 }
 
@@ -587,7 +536,6 @@ function resizeShapes(x,y){
     switch(currentShapeType){
         case 'rect':
             shape1.attr('points',`1,1 ${positions.width - 1},1 ${positions.width - 1},${positions.height - 1} 1,${positions.height - 1}`);
-            
             break;
         case 'ellipse':
             const rx = Math.max(positions.width / 2 - 1,0);
@@ -614,7 +562,25 @@ function resizeShapes(x,y){
                 x: x,
                 y: y
             };
+            console.log(shapePositions)
     }
+}
+function drawShapes(currentShapeType){
+    const isFill = $fillShapes.is(':checked');
+
+    if(currentShapeType !== 'line'){
+        shapePositions.start = { 
+            x : parseInt(drawingBox.css('left'), 10), 
+            y : parseInt(drawingBox.css('top'), 10) 
+        }
+        shapePositions.end = { 
+            x : shapePositions.start.x + parseInt(drawingBox.css('width'), 10), 
+            y : shapePositions.start.y + parseInt(drawingBox.css('height'), 10)
+        }
+    }
+
+    canvas.drawShapes(canvas.context,currentShapeType,shapePositions.start, shapePositions.end, isFill)
+    save()
 }
 
 $shapeOverlay.on('mousedown',function(e){
@@ -630,6 +596,8 @@ $shapeOverlay.on('mousedown',function(e){
         const rect1 = drawingBox[0].getBoundingClientRect();
         shapeMoveX = e.clientX - rect1.left;
         shapeMoveY = e.clientY - rect1.top;
+        rect12 = { x : parseInt(drawingBox.css('left'), 10), y : parseInt(drawingBox.css('top'), 10)}
+        console.log('h',rect12)
     }
     shapeMoving = true
 })
@@ -638,11 +606,12 @@ $shapeOverlay.on('mousedown',function(e){
         const rect = this.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top; 
+        const isMoving = drawingBox.hasClass('moving')
 
-        if(drawingBox.hasClass('moving') && $shapeOverlay.has(e.target).length > 0)
+        if(isMoving && $shapeOverlay.has(e.target).length > 0)
             moveShape(x,y)
         
-        if(!drawingBox.hasClass('moving'))
+        if(!isMoving)
             resizeShapes(x,y)
     }
     
@@ -652,24 +621,12 @@ $shapeOverlay.on('mousedown',function(e){
 
     const currentShapeType = $('.shapes span.active').data('shape')
 
+    if(drawingBox.hasClass('moving') && $shapeOverlay.has(e.target).length > 0) 
+        return
 
-    const startPoints = { 
-        x : parseInt(drawingBox.css('left'), 10), 
-        y : parseInt(drawingBox.css('top'), 10) 
-    }
-    const endPoints = { 
-        x : startPoints.x + parseInt(drawingBox.css('width'), 10), 
-        y : startPoints.y + parseInt(drawingBox.css('height'), 10)
-    }
+    if(drawingBox.toggleClass('moving').hasClass('moving')) 
+        return;
 
-    if(drawingBox.hasClass('moving') && $shapeOverlay.has(e.target).length > 0) return
-
-    drawingBox.toggleClass('moving')
-    if(drawingBox.hasClass('moving')) return;
-
-    if(currentShapeType == 'line'){
-        canvas.drawShapes(canvas.context,currentShapeType,shapePositions.start, shapePositions.end)
-    }
-    else canvas.drawShapes(canvas.context,currentShapeType,startPoints, endPoints)
+    drawShapes(currentShapeType)
     resetShapes()
 })

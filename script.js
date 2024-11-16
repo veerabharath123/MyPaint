@@ -617,7 +617,7 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     }
     
 })
-.on('mouseup touchend touchcancel',function(){
+.on('mouseup touchend touchcancel',function(e){
     shapeMoving = false;
 
     const currentShapeType = $('.shapes span.active').data('shape')

@@ -14,12 +14,14 @@ body{
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     background-color: #3C3C3C;
     padding: .5rem;
     display: grid;
     grid-template-columns: 1fr;
+    overscroll-behavior-y: contain;
+    overflow: hidden;
 
     > .floater{
         position:absolute;

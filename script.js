@@ -534,7 +534,7 @@ function resizeShapes(x,y){
     drawingBox.css(positions)
 
     shape1.css('stroke',canvas.toolsSetting.brushColor);
-    shape2.css({'stroke':`${canvas.toolsSetting.brushColor} !important` , 'stroke-width':canvas.toolsSetting.brushSize});
+    shape2.css({'stroke':canvas.toolsSetting.brushColor , 'stroke-width':canvas.toolsSetting.brushSize});
 
     switch(currentShapeType){
         case 'rect':

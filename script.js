@@ -501,7 +501,10 @@ let shapePositions = {
     start : { x : 0, y : 0 },
     end : { x : 0, y : 0 }
 }
-let rect12 = {}
+let lineAngles = {
+    start : '',
+    end : ''
+}
 
 function resetShapes(){
     drawingBox.css({ left : 0, top : 0, width : 0, height : 0 });
@@ -530,8 +533,6 @@ function resizeShapes(x,y){
     
     drawingBox.css(positions)
 
-    shapePositions.start = { x : startX , y : startY }
-    shapePositions.end = { x : startX + positions.width , y : startY + positions.height }
     shape1.css('stroke',canvas.toolsSetting.brushColor);
     shape2.css({'stroke':`${canvas.toolsSetting.brushColor} !important` , 'stroke-width':canvas.toolsSetting.brushSize});
 
@@ -555,20 +556,15 @@ function resizeShapes(x,y){
                 y2: shapeY < y ? positions.height - 1 : 1
             };
             shape1.attr('points',`${p.x1},${p.y1} ${p.x2},${p.y2}`)
-            shapePositions.start = {
-                x: shapeX,
-                y: shapeY
-            };
-        
-            shapePositions.end = {
-                x: x,
-                y: y
-            };
-            console.log(shapePositions)
+
+            lineAngles.start = (shapeX < x ? 'w' : 'e') + (shapeY < y ? 'n' : 's')
+            lineAngles.end  = (x < shapeX ? 'w' : 'e') + (y < shapeY ? 'n' : 's')
     }
 }
 function drawShapes(currentShapeType){
     const isFill = $fillShapes.is(':checked');
+    const width = parseInt(drawingBox.css('width'), 10);
+    const height = parseInt(drawingBox.css('height'), 10);
 
     if(currentShapeType !== 'line'){
         shapePositions.start = { 
@@ -576,11 +572,21 @@ function drawShapes(currentShapeType){
             y : parseInt(drawingBox.css('top'), 10) 
         }
         shapePositions.end = { 
-            x : shapePositions.start.x + parseInt(drawingBox.css('width'), 10), 
-            y : shapePositions.start.y + parseInt(drawingBox.css('height'), 10)
+            x : shapePositions.start.x + width, 
+            y : shapePositions.start.y + height
         }
     }
+    else{
+        shapePositions.start = { 
+            x : lineAngles.start.includes('w') ? shapeX : shapeX + width, 
+            y : lineAngles.start.includes('n') ? shapeY : shapeY + height
+        }
 
+        shapePositions.end = { 
+            x : lineAngles.end.includes('w') ? shapeX : shapeX + width, 
+            y : lineAngles.end.includes('n') ? shapeY : shapeY + height
+        }
+    }
     canvas.drawShapes(canvas.context,currentShapeType,shapePositions.start, shapePositions.end, isFill)
     save()
 }
@@ -588,6 +594,7 @@ function drawShapes(currentShapeType){
 $shapeOverlay.on('mousedown touchstart',function(e){
     e.preventDefault()
     const events = e.type == 'touchstart' ? e.touches[0] : e
+
     if(!drawingBox.hasClass('moving')){
         const rect = this.getBoundingClientRect()
         shapeX = events.clientX - rect.left;
@@ -599,8 +606,6 @@ $shapeOverlay.on('mousedown touchstart',function(e){
         const rect1 = drawingBox[0].getBoundingClientRect();
         shapeMoveX = events.clientX - rect1.left;
         shapeMoveY = events.clientY - rect1.top;
-        rect12 = { x : parseInt(drawingBox.css('left'), 10), y : parseInt(drawingBox.css('top'), 10)}
-        console.log('h',rect12)
     }
     shapeMoving = true
 })
@@ -621,7 +626,7 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     }
     
 })
-.on('mouseup touchend touchcancel',function(e){
+.on('mouseup touchend',function(e){
     e.preventDefault()
     shapeMoving = false;
 

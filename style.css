@@ -291,13 +291,50 @@ hr.divider{
     height: fit-content;
 }
 .footer{
-    position: absolute;
+    position: sticky;
     bottom: .5rem;
-    width: calc(100% - 1rem);
+    width: 100% - 1rem;
 
     > .footer-items{
         min-height: 2rem;
         width: 100%;
+        display: flex;
+
+        > input[type="range"]{
+            width:6rem;
+        }
+        > input[type="text"]{
+            height: 30px;
+            width: 30px;
+            outline: none;
+            margin-left: 0.5rem;
+            border: 1px solid #757575;
+            background-color: transparent;
+            border-radius: 5px;
+            text-align: center;
+            color: whitesmoke;
+        }
+        > div{
+            flex-grow: 1;
+            display: flex;
+            color: whitesmoke;
+            justify-content: end;
+        }
+        > div > i{
+            width: 30px;
+            aspect-ratio: 1/1;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        div > ul{
+            list-style: none;
+            font-size: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
     }
 }
 

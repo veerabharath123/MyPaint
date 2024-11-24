@@ -29,12 +29,8 @@ const imgSrc = `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/
 let startX = 0;
 let startY = 0;
 
-let width = parseInt($canvasSection.css('width'), 10);
-let height = parseInt($canvasSection.css('height'), 10);
-const canvas = new Paint($board.attr('id')).loadCanvas(width ,height);
-
-$textOverlay.css({ 'width': width, 'height' : height})
-$shapeOverlay.css({ 'width': width, 'height' : height})
+const dim = resize()
+const canvas = new Paint($board.attr('id')).loadCanvas(dim.width ,dim.height);
 const primaryColors = [
     "#FF0000", // Red
     "#FFA500", // Orange
@@ -52,6 +48,17 @@ const primaryColors = [
     "#800080"  // Purple
 ];
 
+function resize(scale){
+    scale = scale ?? 1
+    let width = parseInt($canvasSection.css('width'), 10) * scale;
+    let height = parseInt($canvasSection.css('height'), 10) * scale;
+
+
+    $textOverlay.css({ 'width': width, 'height' : height})
+    $shapeOverlay.css({ 'width': width, 'height' : height})
+
+    return { width : width, height : height}
+}
 
 function loadColors(){
     $colors.html('')
@@ -258,8 +265,9 @@ $board.on('mousedown touchstart',function(e){
 
         const rect = canvas.element.getBoundingClientRect()
 
-        const x = events.clientX - rect.left
-        const y = events.clientY - rect.top
+        const transform = getTransformScale(canvas.element)
+        const x = (events.clientX - rect.left)/transform.scaleX
+        const y = (events.clientY - rect.top)/transform.scaleY
 
         canvas.context.beginPath();
         canvas.context.moveTo(x,y);
@@ -288,12 +296,13 @@ $board.on('mousedown touchstart',function(e){
 })
 .on('mousemove touchmove',function(e){
     e.preventDefault()
-    const events = e.type === 'touchmove' ? e.touches[0] : e;
+    
     if(canvas.toolsSetting.isDrawing && !canvas.toolsSetting.isFill){
+        const events = e.type === 'touchmove' ? e.touches[0] : e;
         const rect = canvas.element.getBoundingClientRect()
-        const x = events.clientX - rect.left
-        const y = events.clientY - rect.top
-
+        const transform = getTransformScale(canvas.element)
+        const x = (events.clientX - rect.left)/transform.scaleX
+        const y = (events.clientY - rect.top)/transform.scaleY
         if(canvas.toolsSetting.isSpray) 
             canvas.spray(x,y)
         else canvas.draw(x,y)
@@ -315,7 +324,7 @@ $board.on('mousedown touchstart',function(e){
     }
     e.preventDefault()
 })
-$('#board,#overlay').on('wheel',function(e){
+.on('wheel',function(e){
     e.preventDefault(); // Prevent default scroll behavior
 
     const delta = Math.sign(e.originalEvent.deltaY); // Check the scroll direction
@@ -332,6 +341,32 @@ $('#board,#overlay').on('wheel',function(e){
         loadBrushSize()
     },200)
     canvas.sounds.scroll.play()
+})
+
+function getTransformScale(element) {
+    const style = window.getComputedStyle(element);
+    const matrix = style.transform || style.webkitTransform || style.mozTransform;
+
+    if (matrix && matrix !== 'none') {
+        console.log(matrix)
+        const values = matrix.match(/matrix\((.+)\)/)[1].split(', ');
+        const scaleX = parseFloat(values[0]); // Horizontal scaling factor
+        const scaleY = parseFloat(values[3]); // Vertical scaling factor
+        return { scaleX : (scaleX), scaleY : scaleY };
+    }
+
+    // Default scale is 1 if no transform is applied
+    return { scaleX: 1, scaleY: 1 };
+}
+
+$('.canvas-section').on('mousemove touchmove',function(e){
+    e.preventDefault()
+    const events = e.type === 'touchmove' ? e.touches[0] : e;
+    const rect = canvas.element.getBoundingClientRect()
+    const x = parseFloat(events.clientX - rect.left)
+    const y = parseFloat(events.clientY - rect.top)
+    $('#x-axis').text((x % 1 === 0) ? x.toString() : x.toFixed(2))
+    $('#y-axis').text((y % 1 === 0) ? y.toString() : y.toFixed(2))
 })
 
 $clearBtn.on('click',function(){
@@ -641,3 +676,30 @@ $shapeOverlay.on('mousedown touchstart',function(e){
     drawShapes(currentShapeType)
     resetShapes()
 })
+
+$('#resize').on('input',function(){
+    const scale = this.value / 100;
+    scaleElement($textOverlay,scale)
+    scaleElement($shapeOverlay,scale)
+    scaleElement($(canvas.element),scale)
+    $('#resize-text').val(this.value)
+})
+
+function scaleElement(element,scale){
+
+    // Get the original dimensions
+    const originalWidth = parseInt($canvasSection.css('width'),10);
+    const originalHeight = parseInt($canvasSection.css('height'),10);
+
+    // Calculate the new dimensions based on the scale
+    const newWidth = originalWidth * scale;
+    const newHeight = originalHeight * scale;
+
+    // Apply the scale transformation and update width/height
+    element.css({
+        'transform': `scale(${scale})`,
+        'width': `${newWidth}px`,
+        'height': `${newHeight}px`,
+        'transform-origin': 'center'
+    });
+}
